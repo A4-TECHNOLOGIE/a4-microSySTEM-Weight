@@ -1,35 +1,28 @@
-// Compilation smoke tests. The functions are intentionally not called so the
-// extension repository can run in the MakeCode simulator without I2C hardware.
-
-function compileMassAndTareDiagnostic(): void {
-    lcdDisplay.lcdInitIIC()
-    lcdDisplay.lcdClearAll()
-    lcdDisplay.lcdSetBgcolor(0x000000)
-    lcdDisplay.lcdDisplayText("TEST BALANCE", 1, 55, 25, lcdDisplay.FontSize.Large, 0xffffff)
-
-    a4MicroSystemWeight.initializeScale()
+input.onButtonPressed(Button.A, function () {
+    lcdDisplay.lcdDisplayText("TARE...", 2, 85, 110, lcdDisplay.FontSize.Large, 0xffff00)
     a4MicroSystemWeight.tareScale()
+    lcdDisplay.lcdDisplayText("TARE OK", 2, 75, 110, lcdDisplay.FontSize.Large, 0x00ff00)
+    basic.pause(1000)
+})
 
-    const measuredMass = Math.round(a4MicroSystemWeight.massGrams())
-    const connected = a4MicroSystemWeight.scaleConnected()
+let measuredMass = 0
+
+lcdDisplay.lcdInitIIC()
+lcdDisplay.lcdClearAll()
+lcdDisplay.lcdSetBgcolor(0x000000)
+lcdDisplay.lcdDisplayText("TEST BALANCE", 1, 55, 25, lcdDisplay.FontSize.Large, 0xffffff)
+lcdDisplay.lcdDisplayText("Bouton A : tare", 3, 70, 180, lcdDisplay.FontSize.Small, 0xffffff)
+
+a4MicroSystemWeight.initializeScale()
+
+if (a4MicroSystemWeight.scaleConnected()) {
+    lcdDisplay.lcdDisplayText("CAPTEUR OK", 4, 90, 70, lcdDisplay.FontSize.Small, 0x00ff00)
+} else {
+    lcdDisplay.lcdDisplayText("CAPTEUR ABSENT", 4, 70, 70, lcdDisplay.FontSize.Small, 0xff0000)
+}
+
+basic.forever(function () {
+    measuredMass = Math.round(a4MicroSystemWeight.massGrams())
     lcdDisplay.lcdDisplayText("Masse : " + measuredMass + " g", 2, 55, 110, lcdDisplay.FontSize.Large, 0x00ffff)
-}
-
-function compileCalibrationDiagnostic(): void {
-    a4MicroSystemWeight.startCalibration()
-    const calibrationOk = a4MicroSystemWeight.finishCalibration(100)
-    a4MicroSystemWeight.setCalibrationFactor(2236)
-
-    const factor = a4MicroSystemWeight.getCalibrationFactor()
-    const rawValue = a4MicroSystemWeight.rawAverage(5)
-    lcdDisplay.lcdDisplayText("Facteur : " + Math.round(factor), 2, 65, 125, lcdDisplay.FontSize.Small, 0xffffff)
-}
-
-function compileKeypadDiagnostic(): void {
-    a4MicroSystemWeight.initializeKeypad()
-
-    const pressedKey = a4MicroSystemWeight.pressedKey()
-    const waitedKey = a4MicroSystemWeight.waitForKey()
-    const keyPressed = a4MicroSystemWeight.keyIsPressed(a4MicroSystemWeight.WeightKey.One)
-    lcdDisplay.lcdDisplayText("Touche : " + pressedKey, 3, 75, 130, lcdDisplay.FontSize.Large, 0x00ffff)
-}
+    basic.pause(250)
+})
