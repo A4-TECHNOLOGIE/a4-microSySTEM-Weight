@@ -1,7 +1,7 @@
 {
     "name": "a4-microsystem-weight",
     "version": "1.0.0",
-    "description": "MakeCode extension for the A4 Technologie microSySTEM-Weight educational scale.",
+    "description": "MakeCode extension for the A4 Technologie microSySTEM-Weight educational scale: mass measurement, tare, calibration, 4x4 keypad and color LCD for BBC micro:bit.",
     "license": "MIT",
     "public": true,
     "dependencies": {
