@@ -14,7 +14,21 @@
         "_locales/a4-microsystem-weight-strings.json",
         "_locales/a4-microsystem-weight-jsdoc-strings.json",
         "_locales/fr/a4-microsystem-weight-strings.json",
-        "_locales/fr/a4-microsystem-weight-jsdoc-strings.json"
+        "_locales/fr/a4-microsystem-weight-jsdoc-strings.json",
+        "TESTING.md",
+        "docs/initialize-scale.md",
+        "docs/tare-scale.md",
+        "docs/mass-grams.md",
+        "docs/scale-connected.md",
+        "docs/start-calibration.md",
+        "docs/finish-calibration.md",
+        "docs/initialize-keypad.md",
+        "docs/pressed-key.md",
+        "docs/wait-for-key.md",
+        "docs/key-is-pressed.md",
+        "docs/set-calibration-factor.md",
+        "docs/get-calibration-factor.md",
+        "docs/raw-average.md"
     ],
     "testFiles": [
         "test.ts"

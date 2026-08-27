@@ -1,51 +1,52 @@
-# a4 microSySTEM Weight
+# a4-microsystem-weight
 
 ![A4 Technologie microSySTEM-Weight](icon.png)
 
 MakeCode extension for the **A4 Technologie microSySTEM-Weight** educational electronic scale for **BBC micro:bit**.
 
-The model introduces mass measurement through a concrete commercial or industrial weighing application. It combines a strain-gauge weighing system, a programmable color LCD and a 4 × 4 keypad. Students can measure, value or count articles and build their own automated scale programs.
+The microSySTEM-Weight introduces mass measurement through a concrete commercial or industrial weighing application. It combines a strain-gauge weighing system, a programmable color LCD and a 4 × 4 keypad. Students can measure, value or count articles and build their own automated scale programs.
 
-## Product information
+## Product and educational use
 
-- **Product:** microSySTEM-Weight
-- **Reference:** `MIS-WEI-K01`
-- **Dimensions:** 200 × 200 × 90 mm
-- **Delivery:** kit, approximately 20 minutes assembly time
-- **Official product page:** https://www.a4.fr/weight-maquette-programmable-microsystem-pour-micro-bit.html
-- **A4 Technologie:** https://www.a4.fr
-
-The model includes an integrated lithium-battery holder and charging system for autonomous operation. The BBC micro:bit, 18650 battery, programming cable and USB-C charging cable are ordered separately with the `MIS-WEI-K01` version.
-
-## Educational use
-
-The microSySTEM-Weight can be used to study:
+The model is designed for technology, computer science and STEM education. It can be used to study:
 
 - acquisition of a physical quantity with a strain gauge;
 - mass measurement, tare and calibration;
 - measurement stability, accuracy and data filtering;
 - unit conversion and price-per-kilogram calculations;
-- identification and valuation of articles with the keypad;
+- identification and valuation of articles with a keypad;
 - counting identical objects from their mass;
 - information processing and human-machine interfaces;
-- commercial and industrial weighing applications;
-- communication with **microSySTEM-AI Vision** for advanced scenarios such as automatic article recognition or price checking.
+- commercial and industrial weighing applications.
+
+**Product:** microSySTEM-Weight  
+**Reference:** `MIS-WEI-K01`  
+**Dimensions:** 200 × 200 × 90 mm  
+**Delivery:** kit, approximately 20 minutes assembly time
+
+Product page:  
+https://www.a4.fr/weight-maquette-programmable-microsystem-pour-micro-bit.html
+
+Manufacturer:  
+https://www.a4.fr
+
+The model includes an integrated lithium-battery holder and charging system for autonomous operation. The BBC micro:bit, 18650 battery, programming cable and USB-C charging cable are ordered separately with the `MIS-WEI-K01` version.
 
 ## Hardware
 
-The extension supports:
+The microSySTEM-Weight model uses:
 
-- the **DFRobot Gravity I2C Weight Sensor Kit KIT0176**;
-- stable mass readings in grams;
-- tare and two-step calibration with a known reference mass;
-- the integrated **4 × 4 matrix keypad**;
-- the **DFRobot programmable color LCD** through the official `lcdDisplay` dependency.
+- BBC micro:bit - program execution and user interface;
+- DFR1216 expansion board - connection and power interface;
+- DFRobot Gravity I2C Weight Sensor Kit KIT0176 - acquisition of the strain-gauge signal;
+- programmable color LCD - display of measurements and instructions;
+- 4 × 4 matrix keypad - article selection and data entry.
 
 ### Connections used by the extension
 
 | Component | Connection |
 |---|---|
-| KIT0176 weighing module | 3.3 V I2C port |
+| KIT0176 weighing module | 3.3 V I2C port - address `0x64` |
 | DFRobot color LCD | 3.3 V I2C port |
 | Keypad rows | P15, P14, P13, P8 |
 | Keypad columns | P3, P2, P1, P0 |
@@ -57,7 +58,7 @@ The extension supports:
 1. Open [MakeCode for micro:bit](https://makecode.microbit.org/).
 2. Create or open a project.
 3. Select **Extensions**.
-4. Paste the following repository address into the search field:
+4. Paste the repository URL into the search field:
 
 ```text
 https://github.com/A4-TECHNOLOGIE/a4-microSySTEM-Weight
@@ -65,11 +66,11 @@ https://github.com/A4-TECHNOLOGIE/a4-microSySTEM-Weight
 
 5. Select **a4 microSySTEM Weight**.
 
-The DFRobot `lcdDisplay` extension is added automatically and its blocks can be used alongside the A4 scale and keypad blocks.
+The official DFRobot `lcdDisplay` dependency is added automatically and its blocks can be used alongside the A4 scale and keypad blocks.
 
 ## First use
 
-Initialize the scale before reading a mass. Initialize the keypad when it is needed:
+Keep the weighing tray empty and stable when initializing the scale. Initialize the keypad only when it is required:
 
 ```typescript
 a4MicroSystemWeight.initializeScale()
@@ -106,7 +107,7 @@ The second function returns `true` when a valid calibration factor has been calc
 a4MicroSystemWeight.initializeScale()
 ```
 
-Initializes the I2C weighing module, discards the first readings and records the current empty-scale value.
+Initializes the I2C weighing module, discards the first readings and records the current empty-scale value. [Detailed help](docs/initialize-scale.md)
 
 ### Tare the scale
 
@@ -114,7 +115,7 @@ Initializes the I2C weighing module, discards the first readings and records the
 a4MicroSystemWeight.tareScale()
 ```
 
-Sets the current load to zero. Keep the tray mechanically stable while the tare is being performed.
+Sets the current load to zero. Keep the tray mechanically stable while the tare is being performed. [Detailed help](docs/tare-scale.md)
 
 ### Read the mass in grams
 
@@ -122,7 +123,7 @@ Sets the current load to zero. Keep the tray mechanically stable while the tare 
 let mass = a4MicroSystemWeight.massGrams()
 ```
 
-Returns the measured mass in grams using averaged samples and the current calibration factor. Very small residual values around zero are suppressed.
+Returns the measured mass in grams using averaged samples and the current calibration factor. [Detailed help](docs/mass-grams.md)
 
 ### Check the weighing module
 
@@ -130,7 +131,7 @@ Returns the measured mass in grams using averaged samples and the current calibr
 let connected = a4MicroSystemWeight.scaleConnected()
 ```
 
-Returns `true` when a valid data frame can be read from the KIT0176 weighing module.
+Returns `true` when a valid data frame can be read from the KIT0176 weighing module. [Detailed help](docs/scale-connected.md)
 
 ### Start and complete a two-step calibration
 
@@ -139,7 +140,7 @@ a4MicroSystemWeight.startCalibration()
 let calibrationOk = a4MicroSystemWeight.finishCalibration(100)
 ```
 
-The first function records the unloaded value. The second calculates the calibration factor from the known reference mass in grams.
+The first function records the unloaded value. The second calculates the calibration factor from the known reference mass. [Start help](docs/start-calibration.md) - [Finish help](docs/finish-calibration.md)
 
 ### Initialize the 4 × 4 keypad
 
@@ -147,7 +148,7 @@ The first function records the unloaded value. The second calculates the calibra
 a4MicroSystemWeight.initializeKeypad()
 ```
 
-Configures the keypad pins and disables the micro:bit LED matrix because P3 is used as a keypad column.
+Configures the keypad pins and disables the micro:bit LED matrix because P3 is used as a keypad column. [Detailed help](docs/initialize-keypad.md)
 
 ### Read the key currently pressed
 
@@ -155,7 +156,7 @@ Configures the keypad pins and disables the micro:bit LED matrix because P3 is u
 let key = a4MicroSystemWeight.pressedKey()
 ```
 
-Returns `"1"` to `"9"`, `"0"`, `"A"` to `"D"`, `"*"` or `"#"`. It returns an empty string when no stable key press is detected.
+Returns `"1"` to `"9"`, `"0"`, `"A"` to `"D"`, `"*"` or `"#"`. It returns an empty string when no stable key press is detected. [Detailed help](docs/pressed-key.md)
 
 ### Wait for one complete key press
 
@@ -163,7 +164,7 @@ Returns `"1"` to `"9"`, `"0"`, `"A"` to `"D"`, `"*"` or `"#"`. It returns an emp
 let key = a4MicroSystemWeight.waitForKey()
 ```
 
-Waits for a key press and release, then returns the key as text.
+Waits for a key press and release, then returns the key as text. [Detailed help](docs/wait-for-key.md)
 
 ### Test a selected key
 
@@ -173,7 +174,7 @@ let pressed = a4MicroSystemWeight.keyIsPressed(
 )
 ```
 
-Returns `true` while the selected keypad key is pressed.
+Returns `true` while the selected keypad key is pressed. [Detailed help](docs/key-is-pressed.md)
 
 ### Advanced calibration and diagnostics
 
@@ -185,13 +186,21 @@ let rawValue = a4MicroSystemWeight.rawAverage(10)
 
 These advanced blocks apply a known calibration factor, return the current factor or expose averaged raw sensor data for diagnostics.
 
+- [Set calibration factor help](docs/set-calibration-factor.md)
+- [Get calibration factor help](docs/get-calibration-factor.md)
+- [Raw average help](docs/raw-average.md)
+
 ## Example: simple mass measurement
 
+The following example initializes the scale with an empty tray, continuously sends the rounded mass to the serial console and uses button A to perform a new tare.
+
 ```typescript
+// Button A sets the current load as the new zero value.
 input.onButtonPressed(Button.A, function () {
     a4MicroSystemWeight.tareScale()
 })
 
+// The tray must be empty and stable during initialization.
 a4MicroSystemWeight.initializeScale()
 
 basic.forever(function () {
@@ -203,24 +212,40 @@ basic.forever(function () {
 })
 ```
 
-The same mass value can be displayed on the model's color LCD with the blocks from the included `lcdDisplay` extension.
+Additional ready-to-use programs are available in the [`examples`](examples) folder for mass and tare, 100 g calibration and keypad testing.
 
-Additional ready-to-use examples are available in the [`examples`](examples) folder for mass and tare, 100 g calibration and keypad testing.
+## Testing and validation
+
+The root [`test.ts`](test.ts) file provides compilation coverage for every public API without attempting to access physical I2C hardware in the simulator.
+
+The complete hardware procedure, expected results and pass/fail criteria are documented in [`TESTING.md`](TESTING.md).
+
+## Artificial intelligence extension
+
+The microSySTEM-Weight can also be associated with the **microSySTEM-AI Vision** model. Visual recognition can be used for advanced scenarios such as automatic article identification, price checking or comparison between the recognized item and the value selected on the keypad.
+
+More information and programming examples are available in the technical and educational documentation for the microSySTEM-AI Vision model.
 
 ## Français
 
 Cette extension MakeCode permet de programmer la balance pédagogique **microSySTEM-Weight** d'A4 Technologie.
 
-La maquette `MIS-WEI-K01` permet d'étudier la mesure de masse et de développer une balance de type commercial ou industriel. Elle associe une jauge de contrainte, un clavier souple 4 × 4 et un écran LCD couleur programmable. Les blocs de l'extension prennent en charge l'initialisation du capteur, la tare, l'étalonnage avec une masse connue, la lecture de la masse en grammes et le clavier inversé de la maquette.
+La maquette `MIS-WEI-K01` permet d'étudier la mesure de masse et de développer une balance de type commercial ou industriel. Elle associe une jauge de contrainte, un clavier souple 4 × 4 et un écran LCD couleur programmable. Les blocs prennent en charge l'initialisation du capteur, la tare, l'étalonnage avec une masse connue, la lecture de la masse en grammes et le clavier inversé de la maquette.
 
-Les activités A4 utilisent une masse étalon de **100 g**. La maquette peut aussi communiquer avec **microSySTEM-AI Vision** pour imaginer des scénarios de reconnaissance automatique d'articles ou de contrôle de prix.
+Les activités A4 utilisent une masse étalon de **100 g**.
 
 - [Page produit microSySTEM-Weight](https://www.a4.fr/weight-maquette-programmable-microsystem-pour-micro-bit.html)
 - [Site A4 Technologie](https://www.a4.fr)
 
 ## License
 
-This extension is released under the **MIT License**. See [LICENSE](LICENSE).
+This extension is released under the **MIT License**. See [LICENSE.txt](LICENSE.txt).
+
+## A4 Technologie
+
+Designed for educational use by A4 Technologie.
+
+https://www.a4.fr
 
 ---
 

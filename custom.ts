@@ -1,4 +1,4 @@
-//% weight=100 color=#2E8B57 icon="\uf24e" block="a4 microSySTEM Weight"
+//% weight=100 color=#F2B705 icon="\uf24e" block="a4 microSySTEM Weight"
 //% groups='["Scale", "4x4 keypad", "Advanced"]'
 namespace a4MicroSystemWeight {
     const hx711Address = 0x64
@@ -110,6 +110,7 @@ namespace a4MicroSystemWeight {
      * Initializes the I2C weighing module and records the empty scale value.
      */
     //% blockId=a4_weight_initialize_scale
+    //% help=github:a4-microsystem-weight/docs/initialize-scale
     //% block="initialize scale"
     //% weight=100
     //% group="Scale"
@@ -135,6 +136,7 @@ namespace a4MicroSystemWeight {
      * Sets the current load on the scale to zero.
      */
     //% blockId=a4_weight_tare_scale
+    //% help=github:a4-microsystem-weight/docs/tare-scale
     //% block="tare scale"
     //% weight=90
     //% group="Scale"
@@ -163,6 +165,7 @@ namespace a4MicroSystemWeight {
      * Reads the measured mass in grams.
      */
     //% blockId=a4_weight_mass_grams
+    //% help=github:a4-microsystem-weight/docs/mass-grams
     //% block="mass (g)"
     //% weight=80
     //% group="Scale"
@@ -184,6 +187,7 @@ namespace a4MicroSystemWeight {
      * Returns true when valid data can be read from the weighing module.
      */
     //% blockId=a4_weight_scale_connected
+    //% help=github:a4-microsystem-weight/docs/scale-connected
     //% block="scale connected"
     //% weight=70
     //% group="Scale"
@@ -196,6 +200,7 @@ namespace a4MicroSystemWeight {
      * Records the empty scale value and starts a two-step calibration.
      */
     //% blockId=a4_weight_start_calibration
+    //% help=github:a4-microsystem-weight/docs/start-calibration
     //% block="start scale calibration"
     //% weight=60
     //% group="Scale"
@@ -211,6 +216,7 @@ namespace a4MicroSystemWeight {
      * @param referenceMass mass of the calibration weight in grams, eg: 100
      */
     //% blockId=a4_weight_finish_calibration
+    //% help=github:a4-microsystem-weight/docs/finish-calibration
     //% block="calibrate scale with a reference mass of %referenceMass g"
     //% referenceMass.min=1 referenceMass.max=1000 referenceMass.defl=100
     //% weight=50
@@ -237,6 +243,7 @@ namespace a4MicroSystemWeight {
      * Initializes the 4x4 keypad. The micro:bit LED matrix is disabled because P3 is used by the keypad.
      */
     //% blockId=a4_weight_initialize_keypad
+    //% help=github:a4-microsystem-weight/docs/initialize-keypad
     //% block="initialize 4x4 keypad"
     //% weight=100
     //% group="4x4 keypad"
@@ -323,6 +330,7 @@ namespace a4MicroSystemWeight {
      * Reads the key currently pressed. Returns an empty string when no key is pressed.
      */
     //% blockId=a4_weight_pressed_key
+    //% help=github:a4-microsystem-weight/docs/pressed-key
     //% block="pressed keypad key"
     //% weight=90
     //% group="4x4 keypad"
@@ -338,6 +346,7 @@ namespace a4MicroSystemWeight {
      * Waits for one keypad key press and returns the key after it is released.
      */
     //% blockId=a4_weight_wait_for_key
+    //% help=github:a4-microsystem-weight/docs/wait-for-key
     //% block="wait for keypad key"
     //% weight=80
     //% group="4x4 keypad"
@@ -358,6 +367,7 @@ namespace a4MicroSystemWeight {
      * @param key keypad key to test
      */
     //% blockId=a4_weight_key_is_pressed
+    //% help=github:a4-microsystem-weight/docs/key-is-pressed
     //% block="keypad key %key is pressed"
     //% weight=70
     //% group="4x4 keypad"
@@ -370,6 +380,7 @@ namespace a4MicroSystemWeight {
      * @param value calibration factor, eg: 2236
      */
     //% blockId=a4_weight_set_calibration_factor
+    //% help=github:a4-microsystem-weight/docs/set-calibration-factor
     //% block="set scale calibration factor to %value"
     //% value.min=1 value.max=100000 value.defl=2236
     //% weight=100
@@ -383,6 +394,7 @@ namespace a4MicroSystemWeight {
      * Returns the calibration factor currently used by the scale.
      */
     //% blockId=a4_weight_get_calibration_factor
+    //% help=github:a4-microsystem-weight/docs/get-calibration-factor
     //% block="scale calibration factor"
     //% weight=90
     //% group="Advanced"
@@ -396,6 +408,7 @@ namespace a4MicroSystemWeight {
      * @param samples number of valid samples, eg: 10
      */
     //% blockId=a4_weight_raw_average
+    //% help=github:a4-microsystem-weight/docs/raw-average
     //% block="average raw scale value with %samples samples"
     //% samples.min=1 samples.max=50 samples.defl=10
     //% weight=80
