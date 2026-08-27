@@ -1,24 +1,54 @@
+# a4 microSySTEM Weight
 
-> Ouvrir cette page à [https://emsrn.github.io/A4-microSySTEM-Weight/](https://emsrn.github.io/A4-microSySTEM-Weight/)
+MakeCode extension for the A4 Technologie **microSySTEM-Weight** educational scale.
 
-## Utiliser comme extension
+The extension supports:
 
-Ce dépôt peut être ajouté en tant qu'**extension** dans MakeCode.
+- the DFRobot Gravity I2C 1 kg Weight Sensor Kit (KIT0176);
+- stable mass measurement and tare;
+- two-step calibration with a known reference mass;
+- the integrated 4x4 matrix keypad with its reversed connector;
+- the DFRobot color LCD through the official `lcdDisplay` dependency.
 
-* ouvrir [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* cliquez sur **Nouveau projet**
-* cliquez sur **Extensions** dans le menu engrenage
-* recherchez **https://github.com/emsrn/A4-microSySTEM-Weight** et importez
+## Hardware connections
 
-## Éditer ce projet
+| Component | Connection |
+|---|---|
+| KIT0176 weighing module | 3.3 V I2C port |
+| DFRobot color LCD | 3.3 V I2C port |
+| Keypad rows | P15, P14, P13, P8 |
+| Keypad columns | P3, P2, P1, P0 |
 
-Éditer ce dépôt dans MakeCode.
+Initializing the keypad disables the micro:bit LED matrix because pin P3 is used by the keypad.
 
-* ouvrir [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* cliquez sur **Importer** puis cliquez sur **Importer l'URL **
-* collez **https://github.com/emsrn/A4-microSySTEM-Weight** et cliquez sur importer
+## Use as a MakeCode extension
 
-#### Métadonnées (utilisées pour la recherche, le rendu)
+1. Open [MakeCode for micro:bit](https://makecode.microbit.org/).
+2. Create a new project.
+3. Select **Extensions**.
+4. Search for `https://github.com/A4-TECHNOLOGIE/a4-microSySTEM-Weight`.
 
-* for PXT/microbit
-<script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
+## Calibration
+
+The supplied teaching activities use a 100 g reference mass:
+
+1. Remove every object from the scale.
+2. Run `start scale calibration`.
+3. Place the 100 g reference mass in the middle of the tray.
+4. Run `calibrate scale with a reference mass of 100 g`.
+
+The second block returns `true` when a valid calibration factor has been calculated.
+
+## Licence
+
+MIT
+
+---
+
+# Français
+
+Cette extension MakeCode permet de programmer la balance pédagogique **microSySTEM-Weight** d'A4 Technologie.
+
+Elle prend en charge le module de pesage I2C DFRobot KIT0176, la tare, l'étalonnage avec une masse étalon, le clavier matriciel 4x4 et l'écran LCD couleur DFRobot.
+
+Les activités pédagogiques utilisent une masse étalon de **100 g**.

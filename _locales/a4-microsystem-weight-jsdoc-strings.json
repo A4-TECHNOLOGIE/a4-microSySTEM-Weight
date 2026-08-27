@@ -1,0 +1,19 @@
+{
+  "a4MicroSystemWeight.initializeScale": "Initializes the I2C weighing module and records the empty scale value.",
+  "a4MicroSystemWeight.tareScale": "Sets the current load on the scale to zero.",
+  "a4MicroSystemWeight.massGrams": "Reads the measured mass in grams.",
+  "a4MicroSystemWeight.scaleConnected": "Returns true when valid data can be read from the weighing module.",
+  "a4MicroSystemWeight.startCalibration": "Records the empty scale value and starts a two-step calibration.",
+  "a4MicroSystemWeight.finishCalibration": "Completes calibration using a known reference mass. Returns true when a valid calibration factor has been calculated.",
+  "a4MicroSystemWeight.finishCalibration|param|referenceMass": "mass of the calibration weight in grams",
+  "a4MicroSystemWeight.initializeKeypad": "Initializes the 4x4 keypad. The micro:bit LED matrix is disabled because P3 is used by the keypad.",
+  "a4MicroSystemWeight.pressedKey": "Reads the key currently pressed. Returns an empty string when no key is pressed.",
+  "a4MicroSystemWeight.waitForKey": "Waits for one keypad key press and returns the key after it is released.",
+  "a4MicroSystemWeight.keyIsPressed": "Returns true when the selected keypad key is currently pressed.",
+  "a4MicroSystemWeight.keyIsPressed|param|key": "keypad key to test",
+  "a4MicroSystemWeight.setCalibrationFactor": "Sets the software calibration factor used to convert raw values into grams.",
+  "a4MicroSystemWeight.setCalibrationFactor|param|value": "calibration factor",
+  "a4MicroSystemWeight.getCalibrationFactor": "Returns the calibration factor currently used by the scale.",
+  "a4MicroSystemWeight.rawAverage": "Reads the average raw value from the weighing module.",
+  "a4MicroSystemWeight.rawAverage|param|samples": "number of valid samples"
+}

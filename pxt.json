@@ -1,27 +1,30 @@
 {
-    "name": "A4-microSySTEM-Weight",
-    "description": "",
+    "name": "a4-microsystem-weight",
+    "version": "1.0.0",
+    "description": "MakeCode extension for the A4 Technologie microSySTEM-Weight educational scale.",
+    "license": "MIT",
+    "public": true,
     "dependencies": {
         "core": "*",
-        "radio": "*",
-        "microphone": "*",
         "lcdDisplay": "github:DFRobot/pxt-DFRobot_lcdDisplay#v0.0.7"
     },
     "files": [
-        "main.blocks",
-        "main.ts",
         "README.md",
-        "custom.ts"
+        "custom.ts",
+        "_locales/a4-microsystem-weight-strings.json",
+        "_locales/a4-microsystem-weight-jsdoc-strings.json",
+        "_locales/fr/a4-microsystem-weight-strings.json",
+        "_locales/fr/a4-microsystem-weight-jsdoc-strings.json"
     ],
     "testFiles": [
         "test.ts"
     ],
     "targetVersions": {
-        "target": "9.0.8",
+        "target": "8.0.22",
         "targetId": "microbit"
     },
     "supportedTargets": [
         "microbit"
     ],
-    "preferredEditor": "blocksprj"
+    "preferredEditor": "tsprj"
 }

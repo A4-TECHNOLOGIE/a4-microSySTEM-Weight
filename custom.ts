@@ -1,165 +1,93 @@
-/**
- * MakeCode extension for:
- * - DFRobot HX711 I2C Weight Sensor Module V1.0
- * - 4x4 passive matrix keypad
- */
+//% weight=100 color=#2E8B57 icon="\uf24e" block="a4 microSySTEM Weight"
+//% groups='["Scale", "4x4 keypad", "Advanced"]'
+namespace a4MicroSystemWeight {
+    const hx711Address = 0x64
+    const regClearState = 0x65
+    const regRawData = 0x66
+    const regInitialize = 0x70
+    const regTare = 0x73
 
-/**
- * Blocks for the DFRobot HX711 I2C Weight Sensor.
- */
-//% weight=100 color=#0fbc11 icon="\uf24e" block="A4 Weight Sensor"
-namespace HX711WeightSensor {
-    const HX711_ADDR = 0x64
-    const REG_CLEAR_REG_STATE = 0x65
-    const REG_DATA_GET_RAM_DATA = 0x66
-    const REG_DATA_GET_PEEL_FLAG = 0x69
-    const REG_DATA_INIT_SENSOR = 0x70
-    const REG_CLICK_RST = 0x73
+    const defaultCalibrationFactor = 2236
+    const defaultSampleCount = 12
 
-    let offset = 0
-    let calibrationFactor = 2236
+    let scaleInitialized = false
+    let scaleOffset = 0
+    let calibrationFactor = defaultCalibrationFactor
+    let calibrationEmptyRaw = 0
+    let calibrationStarted = false
 
-    function writeRegister(registerAddress: number, value: number = 0): void {
-        let buffer = pins.createBuffer(2)
-        buffer.setNumber(NumberFormat.UInt8LE, 0, registerAddress)
-        buffer.setNumber(NumberFormat.UInt8LE, 1, value)
-        pins.i2cWriteBuffer(HX711_ADDR, buffer)
-        basic.pause(50)
+    let keypadInitialized = false
+
+    export enum WeightKey {
+        //% block="1"
+        One,
+        //% block="2"
+        Two,
+        //% block="3"
+        Three,
+        //% block="A"
+        A,
+        //% block="4"
+        Four,
+        //% block="5"
+        Five,
+        //% block="6"
+        Six,
+        //% block="B"
+        B,
+        //% block="7"
+        Seven,
+        //% block="8"
+        Eight,
+        //% block="9"
+        Nine,
+        //% block="C"
+        C,
+        //% block="*"
+        Star,
+        //% block="0"
+        Zero,
+        //% block="#"
+        Hash,
+        //% block="D"
+        D
     }
 
-    function readRegister(registerAddress: number, size: number): Buffer {
-        let buffer = pins.createBuffer(1)
-        buffer.setNumber(NumberFormat.UInt8LE, 0, registerAddress)
-        pins.i2cWriteBuffer(HX711_ADDR, buffer)
+    function writeRegister(registerAddress: number, value: number): void {
+        const buffer = pins.createBuffer(2)
+        buffer[0] = registerAddress
+        buffer[1] = value
+        pins.i2cWriteBuffer(hx711Address, buffer)
+        basic.pause(30)
+    }
+
+    function readRegister(registerAddress: number, length: number): Buffer {
+        const registerBuffer = pins.createBuffer(1)
+        registerBuffer[0] = registerAddress
+        pins.i2cWriteBuffer(hx711Address, registerBuffer)
         basic.pause(22)
-        return pins.i2cReadBuffer(HX711_ADDR, size)
+        return pins.i2cReadBuffer(hx711Address, length)
     }
 
-    /**
-     * Initialize the HX711 I2C weight sensor.
-     */
-    //% block="initialize HX711 weight sensor"
-    //% weight=100
-    export function initializeWeightSensor(): void {
-        let buffer = pins.createBuffer(2)
-        buffer.setNumber(NumberFormat.UInt8LE, 0, REG_DATA_INIT_SENSOR)
-        buffer.setNumber(NumberFormat.UInt8LE, 1, REG_CLEAR_REG_STATE)
-        pins.i2cWriteBuffer(HX711_ADDR, buffer)
-        basic.pause(200)
-        tare()
-    }
+    function readRawInternal(): number {
+        const data = readRegister(regRawData, 4)
 
-    /**
-     * Set the current load as zero.
-     */
-    //% block="tare weight sensor"
-    //% weight=90
-    export function tare(): void {
-        // Reset the module first, then wait for the signal to stabilize.
-        writeRegister(REG_CLICK_RST, 0)
-        basic.pause(500)
+        if (data.length < 4 || data[0] != 0x12) return -1
 
-        // Discard the first unstable readings.
-        for (let i = 0; i < 5; i++) {
-            rawValue()
-            basic.pause(50)
-        }
-
-        // Store a stable software offset.
-        offset = rawAverage(20)
-    }
-
-    /**
-     * Set the calibration factor.
-     * A larger calibration factor gives a smaller displayed weight.
-     */
-    //% block="set weight calibration factor to %value"
-    //% value.min=1 value.defl=2236
-    //% weight=80
-    export function setCalibrationFactor(value: number): void {
-        calibrationFactor = value
-    }
-
-    /**
-     * Read the current weight in grams.
-     */
-    //% block="weight in grams"
-    //% weight=70
-    export function weightInGrams(): number {
-        let value = rawAverage(12)
-        let weight = (value - offset) / calibrationFactor
-
-        // Remove small variations around zero.
-        if (Math.abs(weight) < 1) {
-            return 0
-        }
-
-        // Reject clearly invalid measurements.
-        if (Math.abs(weight) > 100000) {
-            return 0
-        }
-
-        return weight
-    }
-
-    /**
-     * Read the current weight in grams using a custom number of samples.
-     */
-    //////////////////////////////// block="weight in grams with %samples samples" ///////////////////////////////////////
-    //% samples.min=1 samples.max=50 samples.defl=12
-    //% weight=60
-    export function weightInGramsWithSamples(samples: number): number {
-        let value = rawAverage(samples)
-        let weight = (value - offset) / calibrationFactor
-
-        if (Math.abs(weight) < 1) {
-            return 0
-        }
-
-        if (Math.abs(weight) > 100000) {
-            return 0
-        }
-
-        return weight
-    }
-
-    /**
-     * Read the raw value from the sensor.
-     * This is useful for testing and calibration.
-     */
-    ////////////////////////////////// block="raw weight value" ////////////////////////////////////
-    //% weight=50
-    export function rawValue(): number {
-        let data = readRegister(REG_DATA_GET_RAM_DATA, 4)
-
-        // Invalid I2C frames must not be treated as a real zero reading.
-        if (data.length < 4 ||
-            data.getNumber(NumberFormat.UInt8LE, 0) != 0x12) {
-            return -1
-        }
-
-        let value =
-            data.getNumber(NumberFormat.UInt8LE, 1) * 65536 +
-            data.getNumber(NumberFormat.UInt8LE, 2) * 256 +
-            data.getNumber(NumberFormat.UInt8LE, 3)
-
+        let value = data[1] * 65536 + data[2] * 256 + data[3]
         return value ^ 0x800000
     }
 
-    /**
-     * Read the average of several raw sensor values.
-     */
-    //% block="average raw weight value with %samples samples"
-    //% samples.min=1 samples.max=50 samples.defl=10
-    //% weight=40
-    export function rawAverage(samples: number): number {
+    function readRawAverageInternal(samples: number): number {
+        samples = Math.clamp(1, 50, Math.round(samples))
+
         let sum = 0
         let validSamples = 0
         let attempts = 0
-        let maximumAttempts = samples * 4
+        const maximumAttempts = samples * 4
 
         while (validSamples < samples && attempts < maximumAttempts) {
-            let value = rawValue()
+            const value = readRawInternal()
             attempts++
 
             if (value >= 0) {
@@ -170,70 +98,162 @@ namespace HX711WeightSensor {
             basic.pause(20)
         }
 
-        // Keep the previous offset if every communication attempt failed.
-        if (validSamples == 0) {
-            return offset
-        }
-
+        if (validSamples == 0) return -1
         return sum / validSamples
     }
 
-    /**
-     * Read the sensor tare flag.
-     */
-    ///////////////////////////////////// block="weight sensor tare flag" /////////////////////////////////
-    //% weight=30
-    export function tareFlag(): number {
-        let data = readRegister(REG_DATA_GET_PEEL_FLAG, 1)
-        return data.getNumber(NumberFormat.UInt8LE, 0)
+    function ensureScaleInitialized(): void {
+        if (!scaleInitialized) initializeScale()
     }
 
     /**
-     * Blocks for a 4x4 passive matrix keypad.
-     *
-     * Wiring with reversed 8-pin connector:
-     *
-     * Original connector order:
-     * P0, P1, P2, P3, P8, P13, P14, P15
-     *
-     * New connector order after rotation:
-     * P15, P14, P13, P8, P3, P2, P1, P0
-     *
-     * Row 1 -> P15 keys 1,2,3,A
-     * Row 2 -> P14 keys 4,5,6,B
-     * Row 3 -> P13 keys 7,8,9,C
-     * Row 4 -> P8  keys *,0,#,D
-     *
-     * Column 1 -> P3 keys 1,4,7,*
-     * Column 2 -> P2 keys 2,5,8,0
-     * Column 3 -> P1 keys 3,6,9,#
-     * Column 4 -> P0 keys A,B,C,D
-     *
-     * Note:
-     * P3 is shared with the micro:bit LED matrix.
-     * The LED display is disabled automatically when the keypad is initialized.
+     * Initializes the I2C weighing module and records the empty scale value.
      */
+    //% blockId=a4_weight_initialize_scale
+    //% block="initialize scale"
+    //% weight=100
+    //% group="Scale"
+    export function initializeScale(): void {
+        writeRegister(regInitialize, regClearState)
+        basic.pause(250)
 
-    //% weight=95 color=#1e90ff icon="\uf11c" subcategory="a4 Keypad 4x4" color=#1e90ff
-    let lastKey = ""
-    let debounceTimeMs = 80
+        for (let index = 0; index < 5; index++) {
+            readRawInternal()
+            basic.pause(30)
+        }
 
-    function configurePins(): void {
-        // P3 is shared with the LED matrix.
-        // Disable the display so P3 can be used reliably as a GPIO pin.
+        const initialValue = readRawAverageInternal(15)
+        if (initialValue >= 0) {
+            scaleOffset = initialValue
+            scaleInitialized = true
+        } else {
+            scaleInitialized = false
+        }
+    }
+
+    /**
+     * Sets the current load on the scale to zero.
+     */
+    //% blockId=a4_weight_tare_scale
+    //% block="tare scale"
+    //% weight=90
+    //% group="Scale"
+    export function tareScale(): void {
+        ensureScaleInitialized()
+
+        const valueBeforeReset = readRawAverageInternal(12)
+        if (valueBeforeReset >= 0) scaleOffset = valueBeforeReset
+
+        writeRegister(regTare, 0)
+        basic.pause(500)
+
+        for (let index = 0; index < 5; index++) {
+            readRawInternal()
+            basic.pause(30)
+        }
+
+        const stableValue = readRawAverageInternal(20)
+        if (stableValue >= 0) {
+            scaleOffset = stableValue
+            scaleInitialized = true
+        }
+    }
+
+    /**
+     * Reads the measured mass in grams.
+     */
+    //% blockId=a4_weight_mass_grams
+    //% block="mass (g)"
+    //% weight=80
+    //% group="Scale"
+    export function massGrams(): number {
+        ensureScaleInitialized()
+
+        const rawValue = readRawAverageInternal(defaultSampleCount)
+        if (rawValue < 0 || calibrationFactor <= 0) return 0
+
+        const mass = (rawValue - scaleOffset) / calibrationFactor
+
+        if (Math.abs(mass) < 0.5) return 0
+        if (Math.abs(mass) > 5000) return 0
+
+        return mass
+    }
+
+    /**
+     * Returns true when valid data can be read from the weighing module.
+     */
+    //% blockId=a4_weight_scale_connected
+    //% block="scale connected"
+    //% weight=70
+    //% group="Scale"
+    export function scaleConnected(): boolean {
+        ensureScaleInitialized()
+        return readRawInternal() >= 0
+    }
+
+    /**
+     * Records the empty scale value and starts a two-step calibration.
+     */
+    //% blockId=a4_weight_start_calibration
+    //% block="start scale calibration"
+    //% weight=60
+    //% group="Scale"
+    export function startCalibration(): void {
+        tareScale()
+        calibrationEmptyRaw = scaleOffset
+        calibrationStarted = scaleInitialized
+    }
+
+    /**
+     * Completes calibration using a known reference mass.
+     * Returns true when a valid calibration factor has been calculated.
+     * @param referenceMass mass of the calibration weight in grams, eg: 100
+     */
+    //% blockId=a4_weight_finish_calibration
+    //% block="calibrate scale with a reference mass of %referenceMass g"
+    //% referenceMass.min=1 referenceMass.max=1000 referenceMass.defl=100
+    //% weight=50
+    //% group="Scale"
+    export function finishCalibration(referenceMass: number): boolean {
+        referenceMass = Math.clamp(1, 1000, referenceMass)
+
+        if (!calibrationStarted) return false
+
+        const loadedRaw = readRawAverageInternal(30)
+        calibrationStarted = false
+
+        if (loadedRaw < 0) return false
+
+        const calculatedFactor = (loadedRaw - calibrationEmptyRaw) / referenceMass
+        if (calculatedFactor <= 0 || calculatedFactor > 1000000) return false
+
+        calibrationFactor = calculatedFactor
+        scaleOffset = calibrationEmptyRaw
+        return true
+    }
+
+    /**
+     * Initializes the 4x4 keypad. The micro:bit LED matrix is disabled because P3 is used by the keypad.
+     */
+    //% blockId=a4_weight_initialize_keypad
+    //% block="initialize 4x4 keypad"
+    //% weight=100
+    //% group="4x4 keypad"
+    export function initializeKeypad(): void {
         led.enable(false)
 
-        // Rows as inputs with pull-up
         pins.setPull(DigitalPin.P15, PinPullMode.PullUp)
         pins.setPull(DigitalPin.P14, PinPullMode.PullUp)
         pins.setPull(DigitalPin.P13, PinPullMode.PullUp)
         pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 
-        // Columns as outputs, idle HIGH
-        pins.digitalWritePin(DigitalPin.P3, 1)
-        pins.digitalWritePin(DigitalPin.P2, 1)
-        pins.digitalWritePin(DigitalPin.P1, 1)
-        pins.digitalWritePin(DigitalPin.P0, 1)
+        setAllColumnsHigh()
+        keypadInitialized = true
+    }
+
+    function ensureKeypadInitialized(): void {
+        if (!keypadInitialized) initializeKeypad()
     }
 
     function setAllColumnsHigh(): void {
@@ -243,77 +263,45 @@ namespace HX711WeightSensor {
         pins.digitalWritePin(DigitalPin.P0, 1)
     }
 
-    function setColumnLow(column: number): void {
+    function selectColumn(column: number): void {
         setAllColumnsHigh()
 
-        if (column == 0) {
-            pins.digitalWritePin(DigitalPin.P3, 0)
-        } else if (column == 1) {
-            pins.digitalWritePin(DigitalPin.P2, 0)
-        } else if (column == 2) {
-            pins.digitalWritePin(DigitalPin.P1, 0)
-        } else {
-            pins.digitalWritePin(DigitalPin.P0, 0)
-        }
+        if (column == 0) pins.digitalWritePin(DigitalPin.P3, 0)
+        else if (column == 1) pins.digitalWritePin(DigitalPin.P2, 0)
+        else if (column == 2) pins.digitalWritePin(DigitalPin.P1, 0)
+        else pins.digitalWritePin(DigitalPin.P0, 0)
 
         control.waitMicros(200)
     }
 
     function readRow(): number {
-        if (pins.digitalReadPin(DigitalPin.P15) == 0) {
-            return 0
-        }
-
-        if (pins.digitalReadPin(DigitalPin.P14) == 0) {
-            return 1
-        }
-
-        if (pins.digitalReadPin(DigitalPin.P13) == 0) {
-            return 2
-        }
-
-        if (pins.digitalReadPin(DigitalPin.P8) == 0) {
-            return 3
-        }
-
+        if (pins.digitalReadPin(DigitalPin.P15) == 0) return 0
+        if (pins.digitalReadPin(DigitalPin.P14) == 0) return 1
+        if (pins.digitalReadPin(DigitalPin.P13) == 0) return 2
+        if (pins.digitalReadPin(DigitalPin.P8) == 0) return 3
         return -1
     }
 
-    function keyFromPosition(row: number, column: number): string {
-        if (row == 0 && column == 0) return "1"
-        if (row == 0 && column == 1) return "2"
-        if (row == 0 && column == 2) return "3"
-        if (row == 0 && column == 3) return "A"
-
-        if (row == 1 && column == 0) return "4"
-        if (row == 1 && column == 1) return "5"
-        if (row == 1 && column == 2) return "6"
-        if (row == 1 && column == 3) return "B"
-
-        if (row == 2 && column == 0) return "7"
-        if (row == 2 && column == 1) return "8"
-        if (row == 2 && column == 2) return "9"
-        if (row == 2 && column == 3) return "C"
-
-        if (row == 3 && column == 0) return "*"
-        if (row == 3 && column == 1) return "0"
-        if (row == 3 && column == 2) return "#"
-        if (row == 3 && column == 3) return "D"
-
-        return ""
+    function keyAt(row: number, column: number): string {
+        const keys = [
+            "1", "2", "3", "A",
+            "4", "5", "6", "B",
+            "7", "8", "9", "C",
+            "*", "0", "#", "D"
+        ]
+        return keys[row * 4 + column]
     }
 
-    function scanWithoutDebounce(): string {
-        configurePins()
+    function scanKeypad(): string {
+        ensureKeypadInitialized()
 
         for (let column = 0; column < 4; column++) {
-            setColumnLow(column)
-
-            let row = readRow()
+            selectColumn(column)
+            const row = readRow()
 
             if (row >= 0) {
                 setAllColumnsHigh()
-                return keyFromPosition(row, column)
+                return keyAt(row, column)
             }
         }
 
@@ -321,48 +309,38 @@ namespace HX711WeightSensor {
         return ""
     }
 
-    /**
-     * Initialize the 4x4 keypad.
-     * This disables the micro:bit LED display so P3 can be used reliably.
-     */
-    //% block="initialize 4x4 keypad" subcategory="a4 Keypad 4x4" color=#1e90ff
-    //% weight=100
-    export function initialize(): void {
-        configurePins()
-        lastKey = ""
+    function keyToText(key: WeightKey): string {
+        const keys = [
+            "1", "2", "3", "A",
+            "4", "5", "6", "B",
+            "7", "8", "9", "C",
+            "*", "0", "#", "D"
+        ]
+        return keys[key]
     }
 
     /**
-     * Read the key currently being pressed.
-     * Returns an empty string if no key is pressed.
+     * Reads the key currently pressed. Returns an empty string when no key is pressed.
      */
-    //% block="keypad pressed key" subcategory="a4 Keypad 4x4" color=#1e90ff
+    //% blockId=a4_weight_pressed_key
+    //% block="pressed keypad key"
     //% weight=90
+    //% group="4x4 keypad"
     export function pressedKey(): string {
-        let firstRead = scanWithoutDebounce()
+        const firstRead = scanKeypad()
+        if (firstRead == "") return ""
 
-        if (firstRead == "") {
-            lastKey = ""
-            return ""
-        }
-
-        basic.pause(debounceTimeMs)
-
-        let secondRead = scanWithoutDebounce()
-
-        if (firstRead == secondRead) {
-            lastKey = firstRead
-            return firstRead
-        }
-
-        return ""
+        basic.pause(50)
+        return scanKeypad() == firstRead ? firstRead : ""
     }
 
     /**
-     * Wait until a key is pressed, then return that key.
+     * Waits for one keypad key press and returns the key after it is released.
      */
-    //% block="wait for keypad key" subcategory="a4 Keypad 4x4" color=#1e90ff
+    //% blockId=a4_weight_wait_for_key
+    //% block="wait for keypad key"
     //% weight=80
+    //% group="4x4 keypad"
     export function waitForKey(): string {
         let key = ""
 
@@ -371,59 +349,60 @@ namespace HX711WeightSensor {
             basic.pause(10)
         }
 
-        // Wait for key release to avoid immediate repeated readings.
-        while (scanWithoutDebounce() != "") {
-            basic.pause(10)
-        }
-
+        while (scanKeypad() != "") basic.pause(10)
         return key
     }
 
     /**
-     * Check if a specific key is currently pressed.
+     * Returns true when the selected keypad key is currently pressed.
+     * @param key keypad key to test
      */
-    //% block="keypad key %key is pressed" subcategory="a4 Keypad 4x4" color=#1e90ff
-    //% key.defl="1"
+    //% blockId=a4_weight_key_is_pressed
+    //% block="keypad key %key is pressed"
     //% weight=70
-    export function keyIsPressed(key: string): boolean {
-        return pressedKey() == key
+    //% group="4x4 keypad"
+    export function keyIsPressed(key: WeightKey): boolean {
+        return pressedKey() == keyToText(key)
     }
 
     /**
-     * Set the keypad debounce time in milliseconds.
+     * Sets the software calibration factor used to convert raw values into grams.
+     * @param value calibration factor, eg: 2236
      */
-    //% block="set keypad debounce time to %ms ms" subcategory="a4 Keypad 4x4" color=#1e90ff
-    //% ms.min=10 ms.max=500 ms.defl=80
-    //% weight=60
-    export function setDebounceTime(ms: number): void {
-        debounceTimeMs = ms
+    //% blockId=a4_weight_set_calibration_factor
+    //% block="set scale calibration factor to %value"
+    //% value.min=1 value.max=100000 value.defl=2236
+    //% weight=100
+    //% group="Advanced"
+    //% advanced=true
+    export function setCalibrationFactor(value: number): void {
+        if (value > 0) calibrationFactor = value
     }
 
     /**
-     * Return the last valid key that was read.
+     * Returns the calibration factor currently used by the scale.
      */
-    //% block="last keypad key" subcategory="a4 Keypad 4x4" color=#1e90ff
-    //% weight=50
-    export function lastPressedKey(): string {
-        return lastKey
+    //% blockId=a4_weight_get_calibration_factor
+    //% block="scale calibration factor"
+    //% weight=90
+    //% group="Advanced"
+    //% advanced=true
+    export function getCalibrationFactor(): number {
+        return calibrationFactor
     }
 
     /**
-     * Disable the microbit LED display to release P3 for GPIO use.
+     * Reads the average raw value from the weighing module.
+     * @param samples number of valid samples, eg: 10
      */
-    //% block="disable microbit display for P3" subcategory="a4 Keypad 4x4" color=#1e90ff
-    //% weight=30
-    export function disableDisplayForP3(): void {
-        led.enable(false)
-    }
-
-    /**
-     * Enable the microbit LED display again.
-     * Warning: P3 may no longer work reliably for the keypad.
-     */
-    //% block="enable microbit display" subcategory="a4 Keypad 4x4" color=#1e90ff
-    //% weight=20
-    export function enableDisplay(): void {
-        led.enable(true)
+    //% blockId=a4_weight_raw_average
+    //% block="average raw scale value with %samples samples"
+    //% samples.min=1 samples.max=50 samples.defl=10
+    //% weight=80
+    //% group="Advanced"
+    //% advanced=true
+    export function rawAverage(samples: number): number {
+        ensureScaleInitialized()
+        return readRawAverageInternal(samples)
     }
 }

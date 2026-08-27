@@ -1,0 +1,19 @@
+{
+  "a4MicroSystemWeight.initializeScale": "Initialise le module de pesage I2C et enregistre la valeur de la balance vide.",
+  "a4MicroSystemWeight.tareScale": "Définit la charge actuellement posée sur la balance comme nouvelle valeur zéro.",
+  "a4MicroSystemWeight.massGrams": "Lit la masse mesurée en grammes.",
+  "a4MicroSystemWeight.scaleConnected": "Renvoie vrai lorsque le module de pesage transmet des données valides.",
+  "a4MicroSystemWeight.startCalibration": "Enregistre la valeur de la balance vide et commence un étalonnage en deux étapes.",
+  "a4MicroSystemWeight.finishCalibration": "Termine l'étalonnage avec une masse connue. Renvoie vrai lorsqu'un facteur d'étalonnage valide a été calculé.",
+  "a4MicroSystemWeight.finishCalibration|param|referenceMass": "masse de l'objet étalon en grammes",
+  "a4MicroSystemWeight.initializeKeypad": "Initialise le clavier 4x4. La matrice LED de la micro:bit est désactivée car le clavier utilise P3.",
+  "a4MicroSystemWeight.pressedKey": "Lit la touche actuellement pressée. Renvoie un texte vide lorsqu'aucune touche n'est pressée.",
+  "a4MicroSystemWeight.waitForKey": "Attend l'appui sur une touche et renvoie cette touche après son relâchement.",
+  "a4MicroSystemWeight.keyIsPressed": "Renvoie vrai lorsque la touche sélectionnée est pressée.",
+  "a4MicroSystemWeight.keyIsPressed|param|key": "touche du clavier à tester",
+  "a4MicroSystemWeight.setCalibrationFactor": "Définit le facteur d'étalonnage utilisé pour convertir les valeurs brutes en grammes.",
+  "a4MicroSystemWeight.setCalibrationFactor|param|value": "facteur d'étalonnage",
+  "a4MicroSystemWeight.getCalibrationFactor": "Renvoie le facteur d'étalonnage actuellement utilisé par la balance.",
+  "a4MicroSystemWeight.rawAverage": "Lit la moyenne de plusieurs valeurs brutes du module de pesage.",
+  "a4MicroSystemWeight.rawAverage|param|samples": "nombre de mesures valides"
+}
